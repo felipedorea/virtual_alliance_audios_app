@@ -1,4 +1,4 @@
 flet
-pygame
+pygame-ce
 mutagen
 pyinstaller
