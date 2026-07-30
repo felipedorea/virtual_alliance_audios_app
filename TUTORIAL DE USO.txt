@@ -24,7 +24,7 @@ Documentos/
 Documentos/Virtual Alliance Boarding Audios/audios
 ```
 
-2. Copie para essa pasta todos os áudios que deseja utilizar.
+2. Copie para as respectivas pastas todos os áudios que deseja utilizar.
 
 ### Formato suportado
 
@@ -36,10 +36,8 @@ Exemplo:
 Documentos/
 └── Virtual Alliance Boarding Audios/
     └── audios/
-        ├── Boarding.mp3
-        ├── Welcome.mp3
-        ├── Safety.mp3
-        └── FinalCall.mp3
+        └── Embarque/
+            └── Embarque.mp3
 ```
 
 ---
