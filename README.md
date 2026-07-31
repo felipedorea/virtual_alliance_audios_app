@@ -57,7 +57,7 @@ python main.py
 Para gerar um `.exe` standalone com PyInstaller:
 
 ```bash
-pyinstaller --onefile --windowed --name "VirtualAlliancePlayer" --collect-all flet --add-data "logo.png;." main.py
+pyinstaller --onefile --windowed --name "VirtualAlliancePlayer" --collect-all flet --collect-all flet_desktop --add-data "logo.png;." main.py
 ```
 
 O executável gerado estará em `dist/VirtualAlliancePlayer.exe`.

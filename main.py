@@ -480,6 +480,22 @@ def main(page: ft.Page):
     def close_tutorial(e):
         asyncio.create_task(page.push_route("/"))
 
+    def toggle_always_on_top(e):
+        page.window.always_on_top = not page.window.always_on_top
+        on = page.window.always_on_top
+        always_top_btn.icon = ft.Icons.PUSH_PIN_ROUNDED if on else ft.Icons.PUSH_PIN_OUTLINED
+        always_top_btn.icon_color = ACCENT if on else TEXT_SECONDARY
+        always_top_btn.tooltip = "Tirar do topo" if on else "Sempre no topo"
+        page.update()
+
+    always_top_btn = ft.IconButton(
+        icon=ft.Icons.PUSH_PIN_OUTLINED,
+        icon_color=TEXT_SECONDARY,
+        icon_size=18,
+        tooltip="Sempre no topo",
+        on_click=toggle_always_on_top,
+    )
+
     header = ft.Container(
         content=ft.Stack(
             [
@@ -513,6 +529,7 @@ def main(page: ft.Page):
                                     tooltip="Atualizar lista",
                                     on_click=lambda e: rebuild_playlist(),
                                 ),
+                                always_top_btn,
                             ],
                             vertical_alignment=ft.CrossAxisAlignment.CENTER,
                         ),
