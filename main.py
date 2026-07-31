@@ -44,6 +44,9 @@ BORDER_ACTIVE  = "#00F5C4"
 BORDER_CARD    = "#1E3050"
 SLIDER_TRACK   = "#1E3050"
 
+VERSION = "1.0.0"
+DISCORD_URL = "https://discord.gg/kjKfRmSEBr"
+
 
 def scan_audio_files(subdir):
     path = os.path.join(AUDIO_DIR, subdir)
@@ -425,32 +428,142 @@ def main(page: ft.Page):
         tab_containers.append(t)
     tab_containers.append(tab7)
 
-    header = ft.Container(
-        content=ft.Column(
+    def build_step(num, title, desc):
+        return ft.Column(
             [
-                ft.Row(
+                ft.Text(f"PASSO {num}", color=ACCENT, size=9, weight=ft.FontWeight.BOLD),
+                ft.Text(title, color=TEXT_PRIMARY, size=13, weight=ft.FontWeight.W_600),
+                ft.Text(desc, color=TEXT_SECONDARY, size=12),
+            ],
+            spacing=3,
+        )
+
+    tutorial_title = ft.Text(
+        "Como usar",
+        color=TEXT_PRIMARY,
+        size=17,
+        weight=ft.FontWeight.BOLD,
+    )
+
+    tutorial_content = ft.Column(
+        [
+            build_step(1, "Escolha a etapa do voo",
+                       "Clique na aba do estágio desejado (Boas-Vindas Partida, "
+                       "Decolagem, Cruzeiro, Serv. Bordo, Descida, Pouso, "
+                       "Desembarque ou Boas-Vindas Chegada). A lista carrega os "
+                       "áudios dessa etapa."),
+            build_step(2, "Pesquise uma faixa",
+                       "Use o campo de busca para filtrar rapidamente os áudios "
+                       "pelo nome."),
+            build_step(3, "Reproduza",
+                       "Toque em uma faixa ou no botão de play para começar a "
+                       "reprodução."),
+            build_step(4, "Controle o áudio",
+                       "Ajuste o volume no controle deslizante e acompanhe o "
+                       "progresso da faixa. Use o botão de parar para encerrar."),
+            build_step(5, "Atualize a lista",
+                       "Depois de adicionar novos arquivos, clique no botão de "
+                       "atualizar para recarregar a lista."),
+            build_step(6, "Onde ficam os áudios",
+                       "Coloque os arquivos em Documentos > Virtual Alliance "
+                       "Boarding Audios > audios, nas pastas por etapa "
+                       "(0. Boas-Vindas Partida, 1. Decolagem etc.)."),
+        ],
+        spacing=16,
+        scroll=ft.ScrollMode.AUTO,
+        expand=True,
+    )
+
+    def open_tutorial(e):
+        asyncio.create_task(page.push_route("/tutorial"))
+
+    def close_tutorial(e):
+        asyncio.create_task(page.push_route("/"))
+
+    header = ft.Container(
+        content=ft.Stack(
+            [
+                ft.Column(
                     [
-                        ft.Image(
-                            src=resource_path("logo.png"),
-                            height=90,
+                        ft.Row(
+                            [
+                                ft.Image(
+                                    src=resource_path("logo.png"),
+                                    height=90,
+                                ),
+                                ft.Container(expand=True),
+                                ft.IconButton(
+                                    icon=ft.Icons.FOLDER_ROUNDED,
+                                    icon_color=TEXT_SECONDARY,
+                                    icon_size=18,
+                                    tooltip="Abrir pasta de audios",
+                                    on_click=lambda e: os.startfile(AUDIO_DIR),
+                                ),
+                                ft.IconButton(
+                                    icon=ft.Icons.MENU_BOOK_ROUNDED,
+                                    icon_color=TEXT_SECONDARY,
+                                    icon_size=18,
+                                    tooltip="Tutorial",
+                                    on_click=open_tutorial,
+                                ),
+                                ft.IconButton(
+                                    icon=ft.Icons.REFRESH_ROUNDED,
+                                    icon_color=TEXT_SECONDARY,
+                                    icon_size=18,
+                                    tooltip="Atualizar lista",
+                                    on_click=lambda e: rebuild_playlist(),
+                                ),
+                            ],
+                            vertical_alignment=ft.CrossAxisAlignment.CENTER,
                         ),
-                        ft.Container(expand=True),
-                        ft.IconButton(
-                            icon=ft.Icons.REFRESH_ROUNDED,
-                            icon_color=TEXT_SECONDARY,
-                            icon_size=18,
-                            tooltip="Atualizar lista",
-                            on_click=lambda e: rebuild_playlist(),
+                        tab_grid,
+                    ],
+                    spacing=2,
+                ),
+                ft.Column(
+                    [
+                        ft.Row(
+                            [
+                                ft.Text(
+                                    spans=[
+                                        ft.TextSpan(
+                                            "Visite nosso site",
+                                            url="https://virtualalliance-gilt.vercel.app/",
+                                            style=ft.TextStyle(color=ACCENT, size=11),
+                                        )
+                                    ],
+                                ),
+                                ft.Text("•", color=TEXT_SECONDARY, size=11),
+                                ft.Text(
+                                    spans=[
+                                        ft.TextSpan(
+                                            "Entre no Discord",
+                                            url=DISCORD_URL or None,
+                                            style=ft.TextStyle(color=ACCENT, size=11),
+                                        )
+                                    ],
+                                ),
+                            ],
+                            alignment=ft.MainAxisAlignment.CENTER,
+                            spacing=6,
+                        ),
+                        ft.Text(
+                            VERSION,
+                            color=TEXT_SECONDARY,
+                            size=11,
+                            text_align=ft.TextAlign.CENTER,
                         ),
                     ],
-                    vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                    top=0,
+                    left=0,
+                    right=0,
+                    spacing=0,
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                 ),
-                tab_grid,
-            ],
-            spacing=2,
+            ]
         ),
         bgcolor=BG_HEADER,
-        padding=ft.Padding(left=16, right=8, top=14, bottom=14),
+        padding=ft.Padding(left=16, right=8, top=6, bottom=14),
     )
 
     playlist_header = ft.Container(
@@ -515,7 +628,58 @@ def main(page: ft.Page):
         expand=True,
     )
 
-    page.add(main_col)
+    main_view = ft.View(
+        route="/",
+        bgcolor=BG_PAGE,
+        padding=0,
+        controls=[main_col],
+    )
+
+    tutorial_view = ft.View(
+        route="/tutorial",
+        bgcolor=BG_PAGE,
+        padding=0,
+        controls=[
+            ft.Container(
+                content=ft.Column(
+                    [
+                        ft.Row(
+                            [
+                                ft.IconButton(
+                                    icon=ft.Icons.ARROW_BACK_ROUNDED,
+                                    icon_color=TEXT_PRIMARY,
+                                    icon_size=20,
+                                    tooltip="Voltar",
+                                    on_click=close_tutorial,
+                                ),
+                                tutorial_title,
+                            ],
+                            spacing=8,
+                            vertical_alignment=ft.CrossAxisAlignment.CENTER,
+                        ),
+                        ft.Divider(color=BORDER_CARD, height=1),
+                        tutorial_content,
+                    ],
+                    spacing=10,
+                ),
+                bgcolor=BG_HEADER,
+                padding=ft.Padding(left=12, right=16, top=10, bottom=16),
+                expand=True,
+            ),
+        ],
+    )
+
+    def route_change(e):
+        page.views.clear()
+        page.views.append(main_view)
+        if page.route == "/tutorial":
+            page.views.append(tutorial_view)
+        page.update()
+
+    page.on_route_change = route_change
+    page.views.clear()
+    page.views.append(main_view)
+    page.update()
     update_ui()
 
 
